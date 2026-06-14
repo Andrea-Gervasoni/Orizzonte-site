@@ -8,7 +8,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-body { line-height: 1.55; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
+body { line-height: 1.55; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 img, svg { display: block; }
 button { font: inherit; color: inherit; cursor: pointer; }
 input { font: inherit; }
@@ -58,7 +58,7 @@ body {
   color: var(--ink);
   font-family: var(--ff-body);
   font-size: 16px;
-  background: var(--bg);
+  background: transparent;
   min-height: 100vh;
 }
 
@@ -72,13 +72,14 @@ body {
     linear-gradient(180deg, var(--bg), var(--bg-2));
 }
 .ambient::after {
-  content: ''; position: absolute; inset: -2px;
+  content: ''; position: absolute; inset: 0;
   background-image:
-    linear-gradient(to right, rgba(58,46,22,0.10) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(58,46,22,0.10) 1px, transparent 1px);
-  background-size: 58px 58px;
-  -webkit-mask-image: radial-gradient(125% 70% at 50% -12%, #000 22%, transparent 64%);
-  mask-image: radial-gradient(125% 70% at 50% -12%, #000 22%, transparent 64%);
+    linear-gradient(to right, rgba(40,32,14,0.11) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(40,32,14,0.11) 1px, transparent 1px);
+  background-size: 52px 52px;
+  /* la griglia sfuma DENTRO dall'alto (niente linea di bordo) ed esce in basso */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 7%, #000 30%, transparent 64%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 7%, #000 30%, transparent 64%);
 }
 
 /* --- blob morbidi che fluttuano dietro il vetro --- */
@@ -176,7 +177,9 @@ body::after {
   color: var(--gold); font-weight: 600; margin-bottom: 26px;
 }
 .kicker::before { content: ""; width: 28px; height: 1px; background: currentColor; }
-.kicker .pip { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent-2); }
+.kicker .pip { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent-2); animation: pipPulse 2.6s ease-in-out infinite; }
+@keyframes pipPulse { 0%,100% { box-shadow: 0 0 6px var(--accent-2); } 50% { box-shadow: 0 0 15px 2px var(--accent); } }
+@media (prefers-reduced-motion: reduce) { .kicker .pip { animation: none; } }
 .hero h1 { font-size: clamp(34px, 5.4vw, 62px); max-width: 16ch; margin-bottom: 26px; }
 .hero .lead { font-size: clamp(17px, 1.7vw, 20px); max-width: 60ch; color: var(--ink-soft); line-height: 1.6; }
 .hero .based-on { margin-top: 22px; font-family: var(--ff-mono); font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
@@ -261,19 +264,25 @@ input[type="range"]::-moz-range-thumb { width: 21px; height: 21px; border: none;
   background: linear-gradient(165deg, var(--accent-2), var(--accent) 55%, #143226); color: var(--bg);
   font-weight: 600; font-size: 15px; letter-spacing: .01em;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  position: relative; overflow: hidden; transition: transform .12s, box-shadow .22s;
+  position: relative; overflow: hidden; transition: transform .14s, box-shadow .22s;
   box-shadow: 0 10px 26px -10px oklch(0.42 0.10 152 / 0.7), inset 0 1.5px 0 rgba(255,255,255,0.22);
+  animation: simulaPulse 3.8s ease-in-out infinite;   /* bagliore costante che respira */
+}
+@keyframes simulaPulse {
+  0%, 100% { box-shadow: 0 10px 26px -10px oklch(0.42 0.10 152 / 0.7), inset 0 1.5px 0 rgba(255,255,255,0.22), 0 0 15px -3px oklch(0.55 0.13 152 / 0.30); }
+  50%      { box-shadow: 0 14px 34px -10px oklch(0.42 0.12 152 / 0.9), inset 0 1.5px 0 rgba(255,255,255,0.28), 0 0 30px 0px oklch(0.58 0.16 152 / 0.55); }
 }
 .btn-simula::after {
   content: ''; position: absolute; inset: 0;
   background: linear-gradient(105deg, transparent 34%, rgba(255,255,255,0.30) 50%, transparent 66%);
   transform: translateX(-130%); transition: transform .6s cubic-bezier(.3,.7,.3,1);
 }
-.btn-simula:hover { box-shadow: 0 16px 36px -10px oklch(0.42 0.10 152 / 0.95), inset 0 1.5px 0 rgba(255,255,255,0.28); }
+.btn-simula:hover { transform: translateY(-1px); }
 .btn-simula:hover::after { transform: translateX(130%); }
 .btn-simula:active { transform: translateY(1px) scale(.995); }
-.btn-simula:disabled { opacity: .7; cursor: progress; }
+.btn-simula:disabled { opacity: .7; cursor: progress; animation: none; }
 .btn-simula .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold-soft); box-shadow: 0 0 8px var(--gold-soft); }
+@media (prefers-reduced-motion: reduce) { .btn-simula { animation: none; } }
 
 /* --- risultati --- */
 .results { min-width: 0; display: flex; flex-direction: column; gap: 28px; }
@@ -589,16 +598,17 @@ body.no-anim .splash-gem {
 /* ============================================================================
  *  OTTIMIZZAZIONE MOBILE
  * ========================================================================== */
-/* niente scroll orizzontale / strisce di colore ai bordi */
-html { overflow-x: clip; }
-body { overflow-x: clip; max-width: 100%; }
+/* niente scroll orizzontale / strisce ai bordi — SENZA rompere gli sfondi fixed.
+   (overflow-x sul root spostava lo sfondo fisso in fondo su iOS Safari) */
+body { max-width: 100%; }
+.wrap { overflow-x: clip; }
 
 @media (max-width: 700px) {
-  .wrap { padding: 0 16px; }
+  .wrap { padding: 0 20px; }
 
   /* HEADER: "dynamic island" galleggiante */
   .site-header {
-    top: 8px; margin: 8px 10px; border-radius: 20px;
+    top: 8px; margin: 8px 12px; border-radius: 20px;
     border: 1px solid var(--glass-line);
     background: rgba(247,242,232,0.74);
     box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 1px var(--glass-ring);
@@ -633,7 +643,7 @@ body { overflow-x: clip; max-width: 100%; }
 }
 
 @media (max-width: 420px) {
-  .wrap { padding: 0 13px; }
+  .wrap { padding: 0 16px; }
   .method-cell { padding: 18px 16px; }
   .scenario { padding: 18px 16px; }
   .chart-card { padding: 18px 16px 14px; }

@@ -73,7 +73,8 @@ const RESEARCH_ENDPOINT = "https://script.google.com/macros/s/AKfycby7rPhPkbhqZa
   window.__research = {
     afterSim(par) {
       if (!RESEARCH_ENDPOINT) return;       // non configurato: silenzioso
-      if (deciso()) return;                 // l'utente ha gia' scelto
+      var test = location.search.indexOf("test") !== -1;   // ?test = prova ripetibile
+      if (!test && deciso()) return;        // l'utente ha gia' scelto (salvo in modalita' test)
       if (askedThisLoad) return;            // chiedi una sola volta per visita
       askedThisLoad = true;
       // mostra con garbo dopo i risultati, e mai sopra/dietro la splash
