@@ -585,3 +585,56 @@ body.no-anim .splash-gem {
 .rc-yes { background: linear-gradient(165deg, var(--accent-2), var(--accent) 55%, #143226); color: var(--bg); box-shadow: 0 8px 20px -9px oklch(0.42 0.10 152 / .8); }
 .rc-yes:hover { box-shadow: 0 12px 26px -9px oklch(0.42 0.10 152 / .95); }
 @media (prefers-reduced-motion: reduce) { .research-card { transition: opacity .3s; transform: translateX(-50%); } }
+
+/* ============================================================================
+ *  OTTIMIZZAZIONE MOBILE
+ * ========================================================================== */
+/* niente scroll orizzontale / strisce di colore ai bordi */
+html { overflow-x: clip; }
+body { overflow-x: clip; max-width: 100%; }
+
+@media (max-width: 700px) {
+  .wrap { padding: 0 16px; }
+
+  /* HEADER: "dynamic island" galleggiante */
+  .site-header {
+    top: 8px; margin: 8px 10px; border-radius: 20px;
+    border: 1px solid var(--glass-line);
+    background: rgba(247,242,232,0.74);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 1px var(--glass-ring);
+  }
+  .site-header.scrolled {
+    background: rgba(247,242,232,0.9);
+    border-bottom-color: var(--glass-line);
+    box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 1px var(--glass-ring);
+  }
+  .site-header .wrap { height: 52px; padding: 0 14px; }
+  .brand-gem.gem { width: 22px; height: 22px; }
+  .brand-text b { font-size: 15px; }
+
+  /* HERO: respiro verticale piu' compatto */
+  .hero { padding: 36px 0 34px; }
+  .hero h1 { margin-bottom: 18px; }
+  .hero .lead { font-size: 16px; }
+
+  /* anti-overflow: tutti gli elementi possono restringersi entro lo schermo */
+  .results, .results > section, .scenario, .chart-card,
+  .panel, .method-cell, .versato-row { min-width: 0; max-width: 100%; }
+  .code-block { max-width: 100%; }
+
+  /* METODOLOGIA: card a tutta larghezza, ben distanziate dai bordi */
+  .method { padding: 44px 0 30px; }
+  .method-grid { gap: 14px; }
+  .method-cell { padding: 22px 20px; }
+
+  .app { gap: 22px; }
+  #fanChart { height: 360px; }
+  #histChart { height: 300px; }
+}
+
+@media (max-width: 420px) {
+  .wrap { padding: 0 13px; }
+  .method-cell { padding: 18px 16px; }
+  .scenario { padding: 18px 16px; }
+  .chart-card { padding: 18px 16px 14px; }
+}
