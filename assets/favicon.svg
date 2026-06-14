@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="gem" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#57a589"/>
+      <stop offset=".45" stop-color="#1f4536"/>
+      <stop offset="1" stop-color="#a9791f"/>
+    </linearGradient>
+  </defs>
+  <polygon points="16,1.5 30.5,12 16,30.5 1.5,12" fill="url(#gem)"/>
+  <polygon points="16,1.5 30.5,12 16,12" fill="#7bc4a6" opacity=".55"/>
+  <polygon points="16,1.5 1.5,12 16,12" fill="#a8e0cc" opacity=".4"/>
+  <polygon points="16,1.5 21,12 11,12" fill="#d8f3e6" opacity=".55"/>
+  <polygon points="1.5,12 16,12 16,30.5" fill="#143226" opacity=".4"/>
+  <polygon points="30.5,12 16,12 16,30.5" fill="#0f2a1f" opacity=".28"/>
+  <polygon points="16,1.5 30.5,12 16,30.5 1.5,12" fill="none" stroke="#0d2419" stroke-width=".9" stroke-linejoin="round"/>
+  <circle cx="12.5" cy="8" r="1.1" fill="#ffffff" opacity=".85"/>
+</svg>
