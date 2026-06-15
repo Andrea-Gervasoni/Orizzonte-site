@@ -12,8 +12,9 @@
       versamentoAnnuo: 3000,
       etaAttuale: 30,
       etaPensione: 67,
-      volatilita: 0.15,
-      rendimentoMedio: 0.07,
+      profilo: "dinamico",        // rischio+rendimento accoppiati (vedi MODELLO.profili)
+      volatilita: 0.15,           // DERIVATO dal profilo (sigma)
+      rendimentoMedio: 0.07,      // DERIVATO dal profilo (mu)
       numSims: 10000,
     },
   };
@@ -96,22 +97,82 @@
       id: "etaPensione", min: 60, max: 75, step: 1,
       labelKey: "pEtaPensione", fmt: v => v + " " + (stato.lang === "it" ? "anni" : "yrs"),
     }));
-    // volatilita
-    host.appendChild(sliderField({
-      id: "volatilita", min: 0.05, max: 0.30, step: 0.01,
-      labelKey: "pVolatilita", helpKey: "pVolatilitaHelp",
-      fmt: v => Math.round(v * 100) + "%",
-    }));
-    // rendimento medio
-    host.appendChild(sliderField({
-      id: "rendimentoMedio", min: 0.02, max: 0.12, step: 0.005,
-      labelKey: "pRendimento", fmt: v => (v * 100).toFixed(1).replace(".0", "") + "%",
-    }));
+    // profilo di rischio (rischio e rendimento ACCOPPIATI)
+    host.appendChild(profiloField());
     // numero simulazioni (segmented)
     host.appendChild(segField({
       id: "numSims", labelKey: "pSimulazioni",
       opts: [1000, 5000, 10000, 20000], fmt: v => num(v),
     }));
+  }
+
+  // ---- il profilo fissa la coppia (mu, sigma): coupling rischio-rendimento ----
+  function applicaProfilo() {
+    const P = window.MonteCarlo.MODELLO.profili;
+    const p = P[stato.par.profilo] || P[window.MonteCarlo.MODELLO.profiloDefault];
+    stato.par.rendimentoMedio = p.mu;
+    stato.par.volatilita = p.sigma;
+  }
+
+  function profiloField() {
+    const P = window.MonteCarlo.MODELLO.profili;
+    const order = ["prudente", "bilanciato", "dinamico"];
+    const muMax = P.dinamico.mu, sigMax = P.dinamico.sigma;
+    const wrap = document.createElement("div");
+    wrap.className = "field";
+    wrap.innerHTML = `
+      <div class="field-top"><label>${t("pProfilo")}</label></div>
+      <div class="risk-select" id="profiloGroup"></div>
+      <div class="risk-readout">
+        <div class="rr-stat is-return">
+          <span class="rr-cap">${t("rrReturn")}</span>
+          <span class="rr-val"><span class="js-mu">7</span><span class="rr-unit">%</span></span>
+          <span class="rr-bar"><i class="js-mu-bar"></i></span>
+        </div>
+        <div class="rr-div"></div>
+        <div class="rr-stat is-risk">
+          <span class="rr-cap">${t("rrRisk")}</span>
+          <span class="rr-val"><span class="js-sigma">15</span><span class="rr-unit">%</span></span>
+          <span class="rr-bar gold"><i class="js-sigma-bar"></i></span>
+        </div>
+      </div>
+      <div class="help">${t("pProfiloHelp")}</div>`;
+    const group = wrap.querySelector("#profiloGroup");
+    const muEl = wrap.querySelector(".js-mu"), sigEl = wrap.querySelector(".js-sigma");
+    const muBar = wrap.querySelector(".js-mu-bar"), sigBar = wrap.querySelector(".js-sigma-bar");
+
+    function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+    function updateReveal() {
+      const p = P[stato.par.profilo];
+      muEl.textContent = Math.round(p.mu * 100);
+      sigEl.textContent = Math.round(p.sigma * 100);
+      muBar.style.width = (p.mu / muMax * 100) + "%";
+      sigBar.style.width = (p.sigma / sigMax * 100) + "%";
+    }
+
+    order.forEach((key, i) => {
+      const nameKey = "prof" + cap(key);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "risk-opt";
+      b.dataset.k = key;
+      b.style.setProperty("--lvl", i);
+      b.setAttribute("aria-pressed", stato.par.profilo === key);
+      b.innerHTML =
+        `<span class="ro-dot"></span>` +
+        `<span class="ro-name">${t(nameKey)}</span>` +
+        `<span class="ro-sub">${t(nameKey + "Sub")}</span>`;
+      b.addEventListener("click", () => {
+        stato.par.profilo = key;
+        applicaProfilo();
+        group.querySelectorAll(".risk-opt").forEach(x => x.setAttribute("aria-pressed", x.dataset.k === key));
+        updateReveal();
+        salva();
+      });
+      group.appendChild(b);
+    });
+    updateReveal();
+    return wrap;
   }
 
   function sliderField({ id, min, max, step, labelKey, helpKey, fmt }) {
@@ -167,6 +228,11 @@
   function simula(fromUser) {
     const btn = document.getElementById("btnSimula");
     const label = btn.querySelector(".btn-label");
+    // guardia: gli anni rimasti devono essere > 0
+    if (stato.par.etaPensione <= stato.par.etaAttuale) {
+      mostraErrore();
+      return;
+    }
     btn.disabled = true;
     label.textContent = t("simulating");
     // lascia ridipingere il bottone prima del calcolo (che e' sincrono)
@@ -182,6 +248,12 @@
   }
 
   // ============ RENDER RISULTATI ============
+  function mostraErrore() {
+    ultimaSim = null;
+    const host = document.getElementById("results");
+    host.innerHTML = `<div class="sim-error glass">${t("etaErrore")}</div>`;
+  }
+
   function renderRisultati(d) {
     const host = document.getElementById("results");
 
@@ -262,6 +334,12 @@
   function init() {
     carica();
     applicaTema();
+    // garantisce un profilo valido e SINCRONIZZA mu/sigma dal profilo
+    // (impedisce coppie rischio-rendimento incoerenti salvate in precedenza)
+    if (!window.MonteCarlo.MODELLO.profili[stato.par.profilo]) {
+      stato.par.profilo = window.MonteCarlo.MODELLO.profiloDefault;
+    }
+    applicaProfilo();
 
     // lingua
     document.querySelectorAll(".lang-toggle button").forEach(b => {

@@ -15,6 +15,18 @@ const MODELLO = {
   rendimentoMedioDefault: 0.07,   // media della "campana" (7%)
   volatilitaDefault:      0.15,   // deviazione standard (15%)
   simulazioniDefault:     10000,  // come maxSim nel C++
+
+  // --- PROFILI DI RISCHIO (rischio e rendimento ACCOPPIATI) -----------------
+  // Un profilo => una sola coppia (mu, sigma). L'utente NON sceglie mu e sigma
+  // separatamente: niente combinazioni impossibili (alto rendimento + basso
+  // rischio). I numeri sono illustrativi: aggiornali qui, e' la fonte di verita'.
+  profili: {
+    prudente:   { mu: 0.03, sigma: 0.05 },  // obbligazionario
+    bilanciato: { mu: 0.05, sigma: 0.10 },  // misto
+    dinamico:   { mu: 0.07, sigma: 0.15 },  // azionario
+  },
+  profiloDefault: "dinamico",
+
   // Coefficienti di trasformazione capitale -> rendita annua (semplificati,
   // ispirati ai coefficienti dei fondi pensione italiani). Facili da aggiornare.
   coefficienti: [
