@@ -212,7 +212,11 @@ function eseguiSimulazioneV2(par) {
   const totUtente = vers * anni;
   const totDatore = datore * anni;
   // Deduzione in euro di oggi: tetto adeguato all'inflazione (risparmio reale costante).
-  const risparmioDeduzione = Math.min(vers, MODELLO.tettoDeduzione) * F.aliquota * anni;
+  let risparmioDeduzione = 0; 
+  for (let i = 0; i < anni; i++) {     
+    const versAnno = vers * Math.pow(g, i);     
+    risparmioDeduzione += Math.min(versAnno, MODELLO.tettoDeduzione) * F.aliquota; 
+  }
   const aliqFin = aliquotaFinale(anni);
   const tassaFinaleImporto = baseDedotta * aliqFin;
   const defl = Math.pow(1 + MODELLO.inflazione, anni);
