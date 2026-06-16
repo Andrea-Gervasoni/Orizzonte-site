@@ -1,88 +1,91 @@
 # Orizzonte
 
-**Monte Carlo simulator for the Italian private pension (*pensione integrativa*).**
-It estimates how much a contribution plan could be worth over time by simulating thousands of market scenarios, showing the result as a probability distribution — not a single, misleading number.
+A Monte Carlo simulator for the Italian supplementary pension (the *pensione integrativa*). It estimates what a long term savings plan could realistically become, in today's euros, after costs and Italian taxes. Instead of handing you one tidy number that pretends the future is certain, it shows the whole spread of outcomes as a probability distribution.
 
-🔗 **Live site:** https://andrea-gervasoni.github.io/Orizzonte-site/
-🧮 **Original C++ engine:** https://github.com/Andrea-Gervasoni/orizzonte
+**Live site:** https://andrea-gervasoni.github.io/Orizzonte-site/
 
----
+**Original C++ engine:** https://github.com/Andrea-Gervasoni/orizzonte
 
-## What it is
+## The idea
 
-Planning a private pension means dealing with uncertainty: future returns are unknown. **Orizzonte** tackles this with the **Monte Carlo method**: instead of assuming a fixed return, it simulates thousands of "possible lives" of your capital, each with annual returns drawn at random from a realistic distribution.
+Saving for retirement is a bet against an unknown future. Markets go up, markets go down, and a single "expected return" hides everything that matters: how bad a bad decade can be, and how much patience actually pays off.
 
-The output isn't a promise — it's a **probability map**: what happens in the unlucky scenario, the typical one, and the lucky one.
+Orizzonte answers that with the Monte Carlo method. Rather than assuming a fixed return, it plays out thousands of possible lives of your fund, each one with its own random sequence of yearly returns. Then it sorts the results and reads off where you land: the unlucky case, the typical case, and the lucky case.
 
-## How the model works
+The number it gives you is not a promise. It is a map of what could happen, and how likely each corner of that map is.
 
-Each year the capital evolves with this rule (identical to the original C++ code):
+## Two versions, one dial
+
+The model is meant to grow, so the site keeps its history. A small gem at the bottom of the page opens a dial that lets you move between versions.
+
+**Version 1, the prototype (frozen).** The original engine, ported faithfully from C++. Each year the capital follows a simple rule:
 
 ```
-capital = capital × (1 + r) + annual_contribution
+capital = capital * (1 + r) + annual_contribution
 ```
 
-where `r` is a random return drawn from a normal distribution (mean 7%, volatility 15% in version 1). Repeating the simulation **10,000 times** and sorting the results gives the percentiles:
+where `r` is drawn from a normal distribution. It ignores costs, taxes and inflation on purpose: it is the clean teaching model, and it stays exactly as it was.
 
-- **10th percentile** → unlucky scenario (worst 10% of cases)
-- **50th percentile** → typical scenario (the median)
-- **90th percentile** → lucky scenario (best 10% of cases)
+**Version 2, the realistic model (current default).** A much closer picture of how an Italian pension fund actually behaves:
 
-The final capital is then converted into an **estimated monthly annuity** using simplified transformation coefficients, inspired by those of Italian pension funds.
+* Returns drawn from a lognormal distribution, so a year can lose at most one hundred percent and grow without a ceiling, with the volatility drag built in.
+* A yearly management cost (ISC) that quietly erodes performance.
+* A twenty percent tax applied every year on positive gains, as Italian pension funds really are taxed.
+* Contributions that grow two percent a year, keeping their value constant in real terms.
+* An optional employer contribution that joins your own money in the fund.
+* A reduced exit tax, from fifteen percent down to nine, based on years of participation.
+* Everything deflated to today's euros, so the figures are comparable to your salary right now.
+* A separate, honest read of the tax deduction you gain along the way.
 
-## Features
+## What you get on screen
 
-- 📊 **Fan chart** of the capital trajectories, year by year
-- 🎯 **Three scenarios** (unlucky / typical / lucky) with estimated monthly annuity
-- 📈 **Histogram** of the outcome distribution
-- 🎛️ Adjustable parameters: annual contribution, age, retirement age, risk, number of simulations
-- 🌍 **Bilingual** Italian / English
-- 🔭 **Version dial**: the model grows over time, and its evolution is navigable
-- 🔬 **Anonymous data collection** (opt-in) for research: age, contribution and risk appetite
+* Three headline scenarios (unlucky, typical, lucky) with the capital and an estimated monthly income for each.
+* A fan chart of the trajectories over time, with a hover tooltip that reads out the percentiles at any age.
+* A histogram of the final outcomes, with adaptive bands and a hover readout.
+* A clear summary of what you put in, what the employer adds, and what the deduction gives back.
+* A collapsible methodology section with the full list of assumptions.
+* A bilingual interface, Italian and English.
 
 ## Privacy
 
-Data collection is **anonymous and opt-in**. Only three non-identifying values are stored (age, annual contribution, chosen risk) for statistical/research purposes. **No** name, email or personal data. Consent is asked only once per visitor.
+The optional research panel is anonymous and asks for consent before sending anything. It stores only a few non identifying values (age, contribution, risk profile, income band, management cost) together with an anonymous session id and an attempt counter, so the data can be studied without ever touching personal information. No name, no email, nothing that points back to a person.
 
-## Tech
+## How it is built
 
-A **static** site, no frameworks: plain HTML, CSS and JavaScript. The Monte Carlo simulation runs entirely in the browser (a faithful JavaScript port of the original C++ model). Data collection uses a Google Apps Script endpoint + Google Sheet.
+A static site with no frameworks: plain HTML, CSS and JavaScript. The whole simulation runs in the browser as a faithful JavaScript port of the C++ engine. Anonymous data collection uses a Google Apps Script endpoint writing to a Google Sheet, one sheet per model version.
 
-```
-index.html         → main page
-src/montecarlo.js   → simulation engine (single source of truth for the model)
-src/charts.js       → SVG charts (fan chart + histogram)
-src/app.js          → UI, state, rendering
-src/versions.js     → model versions (the dial)
-src/research.js     → anonymous data collection
-src/i18n.js         → translations IT / EN
-src/fx.js           → effects (splash, background, scroll reveal)
-src/styles.css      → styling
-```
+Project layout:
 
-### Run it locally
+* `index.html` is the page itself.
+* `src/montecarlo.js` is the simulation engine and the single source of truth for the model.
+* `src/charts.js` draws the interactive fan chart and histogram in SVG.
+* `src/app.js` handles the interface, the state and the rendering.
+* `src/versions.js` defines the model versions and the dial.
+* `src/research.js` handles the anonymous, consent based data collection.
+* `src/i18n.js` holds the Italian and English copy.
+* `src/fx.js` runs the splash, the ambient background and the scroll reveals.
+* `src/styles.css` is the styling.
 
-Since it's static, just open `index.html` in a browser. To avoid local-file restrictions, a tiny server is better:
+### Running it locally
+
+Because it is static, you can open `index.html` directly. To avoid local file restrictions, a tiny server works better:
 
 ```bash
-# with Python
 python3 -m http.server
 # then open http://localhost:8000
 ```
 
-## Stated limitations (v1)
+## Honesty about the limits
 
-This is an **evolving educational prototype**: returns are independent across years, and inflation, management fees and taxation are not yet modelled. Built to grow — future versions are already tracked in the dial at the bottom of the site.
+This is an educational tool, not financial advice, and the numbers that feed it are illustrative and meant to be calibrated against official COVIP data. The deduction model simplifies the real brackets, and the monthly income is a conservative estimate that stops at age eighty five. Always check the real rules with COVIP and the Italian Revenue Agency before making decisions.
 
-> ⚠️ **Educational tool, not financial advice.** Past and simulated returns do not guarantee future results.
+Past and simulated returns do not guarantee future results.
 
----
+## In breve (italiano)
 
-## Riassunto in italiano
+Orizzonte è un simulatore Monte Carlo per la pensione integrativa italiana. Invece di assumere un rendimento fisso, simula migliaia di possibili futuri del fondo e mostra il risultato come distribuzione di probabilità: scenario sfortunato, tipico e fortunato, in euro di oggi, al netto di costi e tasse. La versione 2 aggiunge rendimenti lognormali, costi di gestione, tassa annua sui guadagni, contributi crescenti e del datore, tassa finale agevolata, inflazione e deduzione fiscale. La versione 1, il prototipo originale portato dal C++, resta congelata e raggiungibile dalla gemma in fondo alla pagina. Sito statico, senza framework, bilingue. Raccolta dati anonima e su consenso. Strumento didattico, non consulenza finanziaria.
 
-**Orizzonte** è un simulatore Monte Carlo per la pensione integrativa italiana. Invece di assumere un rendimento fisso, simula 10.000 possibili percorsi di mercato del capitale e mostra il risultato come distribuzione di probabilità: scenario sfortunato (10° percentile), tipico (mediana) e fortunato (90°), con una rendita mensile stimata. Il motore di simulazione è un porting fedele in JavaScript di un [programma C++ originale](https://github.com/Andrea-Gervasoni/orizzonte). Sito statico, senza framework, bilingue IT/EN. Raccolta dati anonima e su consenso. Strumento didattico, non consulenza finanziaria.
+## Author
 
----
-
-**Author:** Andrea Celeste Gervasoni
-**License:** _(optional — e.g. MIT)_
+Andrea Celeste Gervasoni
+nse:** _(optional — e.g. MIT)_
