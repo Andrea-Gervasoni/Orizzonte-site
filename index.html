@@ -64,8 +64,13 @@
   <section class="hero">
     <div class="wrap">
       <div class="kicker"><span class="pip"></span><span data-i18n="kicker">Metodo Monte Carlo · 10.000 scenari</span></div>
-      <h1 class="display" data-i18n="title">Quanto può valere la tua pensione integrativa?</h1>
-      <p class="lead" data-i18n="lead">Uno scenario futuro non e' un numero solo.</p>
+      <h1 class="display" data-i18n="title">Il tuo fondo pensione, simulato 10.000 volte.</h1>
+      <p class="lead" data-i18n="lead">Orizzonte calcola migliaia di possibili futuri del tuo piano di accumulo.</p>
+      <p class="hero-stat" data-i18n="heroStat">Su un orizzonte di 40 anni, lo scenario fortunato può superare quello sfortunato di oltre il 200%.</p>
+      <a class="hero-cta" href="#parametri">
+        <span data-i18n="ctaText">Imposta i tuoi parametri e premi Simula</span>
+        <span class="cta-arrow" aria-hidden="true">↓</span>
+      </a>
       <a class="based-on" href="https://github.com/Andrea-Gervasoni/orizzonte" target="_blank" rel="noopener" data-i18n="basedOn">Motore portato da un programma C++ originale.</a>
 
       <!-- firma autore (stile testata). Sostituisci href con l'URL del tuo sito
@@ -85,14 +90,20 @@
     <div class="app">
 
       <!-- pannello parametri -->
-      <aside class="panel glass">
-        <h2 data-i18n="paramsTitle">I tuoi parametri</h2>
-        <p class="hint" data-i18n="paramsHint">Modifica e premi Simula.</p>
-        <div id="formFields"></div>
-        <button class="btn-simula" id="btnSimula">
-          <span class="dot"></span>
-          <span class="btn-label" data-i18n="simula">Simula</span>
-        </button>
+      <aside class="panel glass" id="parametri">
+        <div class="panel-head">
+          <h2 data-i18n="paramsTitle">I tuoi parametri</h2>
+          <p class="hint" data-i18n="paramsHint">Modifica e premi Simula.</p>
+        </div>
+        <div class="panel-fields">
+          <div id="formFields"></div>
+        </div>
+        <div class="panel-foot">
+          <button class="btn-simula" id="btnSimula">
+            <span class="dot"></span>
+            <span class="btn-label" data-i18n="simula">Simula</span>
+          </button>
+        </div>
       </aside>
 
       <!-- risultati -->
@@ -100,44 +111,9 @@
     </div>
   </main>
 
-  <!-- ===================== METODOLOGIA ===================== -->
+  <!-- ===================== METODOLOGIA (renderizzata da app.js per-versione) ===================== -->
   <section class="method">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <h2 data-i18n="methodTitle">Nota metodologica</h2>
-        <p data-i18n="methodLead">Trasparenza prima di tutto.</p>
-      </div>
-      <div class="method-grid">
-        <div class="method-cell glass reveal">
-          <div class="num">01</div>
-          <h3 data-i18n="m1Title">Il singolo anno</h3>
-          <p data-i18n="m1Body">Ogni anno il capitale cresce di un rendimento casuale.</p>
-          <div class="code-block"><code><span class="c-com">// rendimento casuale ~ N(media, volatilita)</span>
-<span class="c-key">double</span> r = campana(gen);
-tot = tot * (<span class="c-key">1.0</span> + r) + versamentoXanno;</code></div>
-          <a class="source-link" href="https://github.com/Andrea-Gervasoni/orizzonte" target="_blank" rel="noopener" data-i18n="sourceCode">Vedi il codice C++ originale</a>
-        </div>
-        <div class="method-cell glass reveal" style="transition-delay:80ms">
-          <div class="num">02</div>
-          <h3 data-i18n="m2Title">Migliaia di scenari</h3>
-          <p id="m2body">Ripetendo la simulazione migliaia di volte otteniamo i percentili.</p>
-          <div class="code-block"><code><span class="c-key">for</span> (<span class="c-key">int</span> i = 0; i < maxSim; i++)
-    finale[i] = montecarlo(pers);
-sort(finale, finale + maxSim);</code></div>
-        </div>
-        <div class="method-cell glass reveal" style="transition-delay:40ms">
-          <div class="num">03</div>
-          <h3 data-i18n="m3Title">Dalla somma alla rendita</h3>
-          <p id="m3body">Il capitale finale viene convertito in rendita mensile.</p>
-        </div>
-        <div class="method-cell glass reveal" style="transition-delay:120ms">
-          <div class="num">04</div>
-          <h3 data-i18n="m4Title">Limiti dichiarati</h3>
-          <p data-i18n="m4Body">Prototipo didattico in evoluzione.</p>
-        </div>
-      </div>
-      <p class="disclaimer" data-i18n="disclaimer">Strumento didattico, non consulenza finanziaria.</p>
-    </div>
+    <div class="wrap" id="method-host"></div>
   </section>
 
   <!-- ===================== FOOTER ===================== -->

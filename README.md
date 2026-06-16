@@ -3,7 +3,7 @@
 **Monte Carlo simulator for the Italian private pension (*pensione integrativa*).**
 It estimates how much a contribution plan could be worth over time by simulating thousands of market scenarios, showing the result as a probability distribution — not a single, misleading number.
 
-🔗 **Live site:** https://andrea-gervasoni.github.io/ORIZZONTE-site/
+🔗 **Live site:** _(paste your GitHub Pages link here after publishing)_
 🧮 **Original C++ engine:** https://github.com/Andrea-Gervasoni/orizzonte
 
 ---
@@ -85,4 +85,4 @@ This is an **evolving educational prototype**: returns are independent across ye
 ---
 
 **Author:** Andrea Celeste Gervasoni
-**License:** MIT
+**License:** _(optional — e.g. MIT)_
