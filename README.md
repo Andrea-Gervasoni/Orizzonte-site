@@ -4,7 +4,7 @@ A Monte Carlo simulator for the Italian supplementary pension (the *pensione int
 
 **Live site:** https://andrea-gervasoni.github.io/Orizzonte-site/
 
-**Original C++ engine:** https://github.com/Andrea-Gervasoni/orizzonte
+**Original C++ engine:** https://github.com/Andrea-Gervasoni/Orizzonte-cpp
 
 ## The idea
 
